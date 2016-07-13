@@ -45,7 +45,7 @@ end
 
 function drawAll()
 	gpu.setForeground(0x000000)
-	term.clear()
+	gpu.fill(labelX,tableTitleY,labelWidth,screenY-tableTitleY," ")
 	for ID,data in pairs(objects) do
         draw(ID)
     end
@@ -69,8 +69,9 @@ local rgb = {255,0,0}
 local hex = rgbHex.convert(rgb)
 local col = 2
 local increment = true
-gpu.setForeground(tonumber(hex))
 
+gpu.setPaletteColor(1,tonumber(hex))
+gpu.setForeground(1,true)
 t = textToASCII.convert("Welcome to BTM 2016 2.0","big",true,true)
 len = #t[1]
 for i, line in ipairs(t) do
@@ -182,11 +183,7 @@ while true do
   
 	incrementRgb(col)
 	hex = rgbHex.convert(rgb)
-	gpu.setForeground(tonumber(hex))
-	for i, line in ipairs(t) do
-		term.setCursor(w/2-len/2,i)
-		term.write(line)
-	end
+	gpu.setPaletteColor(1,tonumber(hex))
 	if timer == changeTime then
 		if levelNo == 5 then
 			levelNo = 0
