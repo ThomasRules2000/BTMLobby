@@ -5,7 +5,7 @@ local term = require("term")
 local rgbHex = require("rgbHex")
 
 --Vars
-changeTime = 5000 --How fast the screen changes
+changeTime = 500 --How fast the screen changes
 labelWidth = 30 --Width of Lables
 panelWidth = 80 --Width of Panel Labels
 panelistWidth = 20 --Width of Panelist Labels
@@ -20,8 +20,9 @@ panelistX = panelX+panelWidth
 gpu.setResolution(screenX,screenY)
 term.clear()
 
-local objects = {}
-function newLabel(ID,label,x,y,width,height,color)
+local objectsLobby = {}
+local objectsPanel = {}
+function newLabel(ID,label,x,y,width,height,color,panel)
 	local table = {}
     table["label"] = label
     table["x"] = x
@@ -29,12 +30,20 @@ function newLabel(ID,label,x,y,width,height,color)
     table["width"] = width
     table["height"] = height
     table["color"] = color
-    objects[ID] = table
+    if panel then
+		objectsPanel[ID] = table
+	else
+		objectsLobby[ID] = table
+	end
 end
 
-function draw(ID)
-	data = objects[ID]
-    local objtype = data["type"]
+function draw(ID,panel)
+	if panel then
+		data = objectsPanel[ID]
+    else
+		data = objectsLobby[ID]
+	end
+	local objtype = data["type"]
     local label = data["label"]
     local x = data["x"]
     local y = data["y"]
@@ -47,12 +56,18 @@ function draw(ID)
 	gpu.setBackground(0x000000,false)
 end
 
-function drawAll()
+function drawAll(panel)
 	gpu.setForeground(0x000000)
 	gpu.fill(label3X-2.5*(labelWidth+2),tableTitleY,labelWidth,screenY-tableTitleY," ")
-	for ID,data in pairs(objects) do
-        draw(ID)
-    end
+	if panel then
+		for ID,data in pairs(objectsPanel) do
+			draw(ID,panel)
+		end
+	else
+		for ID,data in pairs(objectsLobby) do
+			draw(ID,panel)
+		end
+	end
 end
 
 local tapeDrive = {}
@@ -174,30 +189,28 @@ panels = {
 }
 
 function level()
-	objects = {}
-
 	--Level 0
-	newLabel("Level0Title","Level 0",label3X,tableTitleY+22,labelWidth,tableTitleHeight,0xff9933)
+	newLabel("Level0Title","Level 0",label3X,tableTitleY+22,labelWidth,tableTitleHeight,0xff9933,false)
 	pos = tableTitleHeight+tableTitleY+22
 	for i=1,#stalls[0] do
 		if i%2==0 then
-			newLabel("L0-Stall"..i,stalls[0][i][1],label3X,pos,labelWidth,stalls[0][i][2],0xffbf80)
+			newLabel("L0-Stall"..i,stalls[0][i][1],label3X,pos,labelWidth,stalls[0][i][2],0xffbf80,false)
 		else
-			newLabel("L0-Stall"..i,stalls[0][i][1],label3X,pos,labelWidth,stalls[0][i][2],0xffd9b3)
+			newLabel("L0-Stall"..i,stalls[0][i][1],label3X,pos,labelWidth,stalls[0][i][2],0xffd9b3,false)
 		end
 		pos = pos+ stalls[0][i][2]
 	end
 	
 	--Levels 1-5
 	for l=1,#stalls do
-		newLabel("Level"..l.."Title","Level "..l,label3X+(l-3)*(labelWidth+2),tableTitleY,labelWidth,tableTitleHeight,0xff9933)
+		newLabel("Level"..l.."Title","Level "..l,label3X+(l-3)*(labelWidth+2),tableTitleY,labelWidth,tableTitleHeight,0xff9933,false)
 		pos = tableTitleHeight+tableTitleY
 		rev = false
 		for i=1,#stalls[l] do
 			if (i%2==0)~=rev then
-				newLabel("L"..l.."-Stall"..i,stalls[l][i][1],label3X+(l-3)*(labelWidth+2),pos,labelWidth,stalls[l][i][2],0xffbf80)
+				newLabel("L"..l.."-Stall"..i,stalls[l][i][1],label3X+(l-3)*(labelWidth+2),pos,labelWidth,stalls[l][i][2],0xffbf80,false)
 			else
-				newLabel("L"..l.."-Stall"..i,stalls[l][i][1],label3X+(l-3)*(labelWidth+2),pos,labelWidth,stalls[l][i][2],0xffd9b3)
+				newLabel("L"..l.."-Stall"..i,stalls[l][i][1],label3X+(l-3)*(labelWidth+2),pos,labelWidth,stalls[l][i][2],0xffd9b3,false)
 			end
 			if stalls[l][i][3] then
 				rev = not rev
@@ -209,17 +222,16 @@ function level()
 end
 
 function showPanels()
-	objects = {}
-	newLabel("PanelTitle","Panel",panelX,tableTitleY,panelWidth,tableTitleHeight,0xff9933)
-	newLabel("PanelistTitle","Panelist",panelistX,tableTitleY,panelistWidth,tableTitleHeight,0xff9933)
+	newLabel("PanelTitle","Panel",panelX,tableTitleY,panelWidth,tableTitleHeight,0xff9933,true)
+	newLabel("PanelistTitle","Panelist",panelistX,tableTitleY,panelistWidth,tableTitleHeight,0xff9933,true)
 	pos = tableTitleHeight+tableTitleY
 	for i=1,#panels do
 		if i%2==0 then
-			newLabel("Panel"..i,panels[i][1],panelX,pos,panelWidth,2,0xffbf80)
-			newLabel("Panelist"..i,panels[i][2],panelistX,pos,panelistWidth,2,0xffbf80)
+			newLabel("Panel"..i,panels[i][1],panelX,pos,panelWidth,2,0xffbf80,true)
+			newLabel("Panelist"..i,panels[i][2],panelistX,pos,panelistWidth,2,0xffbf80,true)
 		else
-			newLabel("Panel"..i,panels[i][1],panelX,pos,panelWidth,2,0xffd9b3)
-			newLabel("Panelist"..i,panels[i][2],panelistX,pos,panelistWidth,2,0xffd9b3)
+			newLabel("Panel"..i,panels[i][1],panelX,pos,panelWidth,2,0xffd9b3,true)
+			newLabel("Panelist"..i,panels[i][2],panelistX,pos,panelistWidth,2,0xffd9b3,true)
 		end
 		pos = pos+2
 	end
@@ -227,6 +239,7 @@ function showPanels()
 end
 
 level()
+showPanels()
 timer = 0
 page2 = false
 --Main Loop
@@ -246,11 +259,7 @@ while true do
 		gpu.setForeground(0x000000)
 		gpu.fill(1,tableTitleY,screenX,screenY-tableTitleY," ")
 		page2 = not page2
-		if page2 then
-			showPanels()
-		else
-			level()
-		end
+		drawAll(page2)
 		timer = 0
 	else
 		timer = timer + 1
