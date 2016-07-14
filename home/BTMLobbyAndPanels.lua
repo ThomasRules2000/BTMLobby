@@ -5,17 +5,17 @@ local term = require("term")
 local rgbHex = require("rgbHex")
 
 --Vars
-changeTime = 500 --How fast the screen changes
-labelWidth = 30 --Width of Lables
-panelWidth = 80 --Width of Panel Labels
-panelistWidth = 20 --Width of Panelist Labels
-tableTitleY = 10 --Y Coordinate of Table Title
-tableTitleHeight = 4 --Height of Table Title
-screenX=130 --Screen Size (Don't Change X, can lower Y to aprox 37)
-screenY=40  --Max: 160x50, 16:9 = 160x45, Default (2:1) = 130x40
-label3X = screenX/2-labelWidth/2
-panelX = screenX/2 -(panelWidth+panelistWidth)/2
-panelistX = panelX+panelWidth
+local changeTime = 500 --How fast the screen changes
+local labelWidth = 30 --Width of Lables
+local panelWidth = 80 --Width of Panel Labels
+local panelistWidth = 20 --Width of Panelist Labels
+local tableTitleY = 10 --Y Coordinate of Table Title
+local tableTitleHeight = 4 --Height of Table Title
+local screenX=130 --Screen Size (Don't Change X, can lower Y to aprox 37)
+local screenY=40  --Max: 160x50, 16:9 = 160x45, Default (2:1) = 130x40
+local label3X = screenX/2-labelWidth/2
+local panelX = screenX/2 -(panelWidth+panelistWidth)/2
+local panelistX = panelX+panelWidth
 
 gpu.setResolution(screenX,screenY)
 term.clear()
@@ -80,7 +80,7 @@ function drawAll(page)
 end
 
 local tapeDrive = {}
-i = 1
+local i = 1
 for address, type in pairs(component.list("tape")) do
   tapeDrive[i] = address
   i = i+1
@@ -88,25 +88,24 @@ end
 
 local w,h = gpu.getResolution()
 
-drive = 1
 component.invoke(tapeDrive[1],"play")
 component.invoke(tapeDrive[1],"setSpeed",0.75)
 component.invoke(tapeDrive[2],"setSpeed",0.75)
 
 local rgb = {255,0,0}
 local hex = rgbHex.convert(rgb)
-local col = 2
-local increment = true
 
 gpu.setPaletteColor(1,tonumber(hex))
 gpu.setForeground(1,true)
-t = textToASCII.convert("Welcome to BTM 2016 2.0","big",true,true)
-len = #t[1]
-for i, line in ipairs(t) do
-  term.setCursor(w/2-len/2,i)
+local btmTitle = textToASCII.convert("Welcome to BTM 2016 2.0","big",true,true)
+local titleLength = #btmTitle[1]
+for i, line in ipairs(btmTitle) do
+  term.setCursor(w/2-titleLength/2,i)
   term.write(line)
 end
 
+local col = 2
+local increment = true
 function incrementRgb(index)
 	if increment then
 		rgb[index] = rgb[index]+1
@@ -131,7 +130,7 @@ function incrementRgb(index)
 	end
 end
 
-stalls = {
+local stalls = {
 	[0]={
 		{"DJ Flamin' GO",1},
 		{"Correlated Foodalistics",1}
@@ -194,7 +193,7 @@ stalls = {
 	}
 }
 
-panels = {
+local panels = {
 	{"IC2 Mystery Panel","Aroma1997"},
 	{"MCubed - a project to build a Curse alternative", "Gaelan"},
 	{"OpenGL for Minecraft Modders", "GreaseMonkey"},
@@ -209,7 +208,7 @@ panels = {
 function level()
 	--Level 0
 	newLabel("Level0Title","Level 0",label3X,tableTitleY+22,labelWidth,tableTitleHeight,0xff9933,1)
-	pos = tableTitleHeight+tableTitleY+22
+	local pos = tableTitleHeight+tableTitleY+22
 	for i=1,#stalls[0] do
 		if i%2==0 then
 			newLabel("L0-Stall"..i,stalls[0][i][1],label3X,pos,labelWidth,stalls[0][i][2],0xffbf80,1)
@@ -222,8 +221,8 @@ function level()
 	--Levels 1-3
 	for l=1,3 do
 		newLabel("Level"..l.."Title","Level "..l,label3X+(l-2)*(labelWidth+4),tableTitleY,labelWidth,tableTitleHeight,0xff9933,1)
-		pos = tableTitleHeight+tableTitleY
-		rev = false
+		local pos = tableTitleHeight+tableTitleY
+		local rev = false
 		for i=1,#stalls[l] do
 			if (i%2==0)~=rev then
 				newLabel("L"..l.."-Stall"..i,stalls[l][i][1],label3X+(l-2)*(labelWidth+4),pos,labelWidth,stalls[l][i][2],0xffbf80,1)
@@ -242,8 +241,8 @@ function level2()
 	--Levels 4-6
 	for l=4,6 do
 		newLabel("Level"..l.."Title","Level "..l,label3X+(l-5)*(labelWidth+4),tableTitleY,labelWidth,tableTitleHeight,0xff9933,2)
-		pos = tableTitleHeight+tableTitleY
-		rev = false
+		local pos = tableTitleHeight+tableTitleY
+		local rev = false
 		for i=1,#stalls[l] do
 			if (i%2==0)~=rev then
 				newLabel("L"..l.."-Stall"..i,stalls[l][i][1],label3X+(l-5)*(labelWidth+4),pos,labelWidth,stalls[l][i][2],0xffbf80,2)
@@ -261,7 +260,7 @@ end
 function showPanels()
 	newLabel("PanelTitle","Panel",panelX,tableTitleY,panelWidth,tableTitleHeight,0xff9933,3)
 	newLabel("PanelistTitle","Panelist",panelistX,tableTitleY,panelistWidth,tableTitleHeight,0xff9933,3)
-	pos = tableTitleHeight+tableTitleY
+	local pos = tableTitleHeight+tableTitleY
 	for i=1,#panels do
 		if i%2==0 then
 			newLabel("Panel"..i,panels[i][1],panelX,pos,panelWidth,2,0xffbf80,3)
@@ -278,8 +277,10 @@ level()
 level2()
 showPanels()
 drawAll(1)
-timer = 0
-page = 1
+local timer = 0
+local page = 1
+
+local drive = 1
 --Main Loop
 while true do
   --Tape Drive Script
