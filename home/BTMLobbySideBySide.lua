@@ -10,7 +10,7 @@ labelWidth = 30 --Width of Lables
 tableTitleY = 10 --Y Coordinate of Table Title
 tableTitleHeight = 4 --Height of Table Title
 screenX=160 --Screen Size (Don't Change X, can lower Y to aprox 37)
-screenY=40  --Max: 160x50, 16:9 = 160x45
+screenY=40  --Max: 160x50, 16:9 = 160x45, Default (2:1) = 160x40
 
 
 gpu.setResolution(screenX,screenY)
