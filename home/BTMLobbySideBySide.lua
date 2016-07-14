@@ -9,8 +9,8 @@ changeTime = 500 --How fast the screen changes
 labelWidth = 30 --Width of Lables
 tableTitleY = 10 --Y Coordinate of Table Title
 tableTitleHeight = 4 --Height of Table Title
-screenX=160 --Screen Size
-screenY=45  --Max: 160x50 
+screenX=160 --Screen Size (Don't Change X, can lower Y to aprox 37)
+screenY=40  --Max: 160x50, 16:9 = 160x45
 
 
 gpu.setResolution(screenX,screenY)
@@ -109,7 +109,8 @@ stalls = {
 		{"Corrilated Foodelastics",1}
 	},
 	[1]={
-		{"IndustrialCraft 2",2},
+		{"IndustrialCraft",1,true},
+		{"2",1},
 		{"Harvest Festival",1},
 		{"ArmorPlus / WeaponsPlus",1},
 		{"OpenRadio",1},
@@ -127,10 +128,15 @@ stalls = {
 	[2]={
 		{"Ender Utilities",1},
 		{"Forestry",1},
-		{"Integrated Dynamics",2},
+		{"Integrated",1,true},
+		{"Dynamics",1},
 		{"Unclaimed",4},
-		{"Fancy Fluid Storage",2},
-		{"Open Computers",4},
+		{"Fancy Fluid",1,true},
+		{"Storage",1},
+		{"",1,true},
+		{"Open",1,true},
+		{"Computers",1,true},
+		{"",1},
 		{"Unclaimed",1},
 		{"Autoverse",1}
 	},
