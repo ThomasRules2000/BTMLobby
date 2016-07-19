@@ -135,16 +135,18 @@ local arrows = { --Uses sides for cardinal and multiplies for inbetween (e.g. nw
  ''''''
 ]]
 }
-
+local radius = 10 --Range of the Tablet - higher number = higher range, but slower. Max 32
 local walkable = 0
-local radius = 10
 local startX,startZ = radius+1,radius+1
 local endX,endZ = 0,0
 local posX,posZ = radius+1,radius+1
 local selected = ""
 local selectedTab = {}
-local instNo = 1
+local instNo = 2
 local path = nil
+local nodeX,nodeZ = 0,0
+local pathLength = 0
+term.clear()
 while true do
 	local waypoints = nav.findWaypoints(radius)
 	if selected~= "" then
@@ -155,7 +157,15 @@ while true do
 			end --if
 		end --for
 	end
-  
+	
+	if selected ~= "" and path then
+		print(instNo,pathLength)
+		posX,posZ = -(selectedTab.position[1] -endX), -(selectedTab.position[3] -endZ)
+		if posX>nodeX-1 and posX<nodeX+1 and posZ>nodeZ-1 and posZ<nodeZ+1 then
+			instNo = instNo+1
+		end
+	end
+	
 	if selected == "" then --Select Waypoint
 		print("Waypoints For This Floor:")
 		for i = 1,#waypoints do
@@ -185,29 +195,32 @@ while true do
 		local finder = Pathfinder(grid, 'JPS', walkable)
 		endX,endZ = selectedTab.position[1]+radius+1, selectedTab.position[3]+radius+1
 		path = finder:getPath(startX, startZ, endX, endZ)
+		pathLength = 0
+		for n,c in path:iter() do
+			pathLength = pathLength+1
+		end
 		posX,posZ = radius,radius
-		instNo = 1
+		instNo = 2
 		print("Path Found")
-	elseif instNo<=path:getLength() then--Send user to waypoint
-		posX,posZ = -(selectedTab.position[1] -endX), -(selectedTab.position[3] -endZ)
+	elseif instNo<=pathLength then--Send user to waypoint
 		local node
 		for n, c in path:iter() do
 			if c == instNo then
-				print("Node Found")
 				node = n
 				break
 			end
 		end
 		local xExisits, zExists = false,false
-		local xDif, zDif = node.x-posX, node.y-posZ
+		nodeX,nodeZ = node.x,node.y
+		local xDif, zDif = nodeX-posX, nodeZ-posZ
 		local facing = nav.getFacing()
 		local xDir, zDir = 6,7
 		local arrow = 1
 		if xDif>0 then
-			xDir = sides.east
+			xDir = sides.west
 			xExisits = true
 		elseif xDif<0 then
-			xDir = sides.west
+			xDir = sides.east
 			xExisits = true
 		end
 		if zDif>0 then
@@ -226,8 +239,7 @@ while true do
 					arrow = zDir
 				end
 			else
-				local ratio = math.deg(math.tan(math.abs(xDif)/math.abs(zDif)))
-				print(ratio)
+				local ratio = math.deg(math.atan(math.abs(xDif),math.abs(zDif)))
 				if ratio>67.5 then
 					arrow = xDir
 				elseif ratio>22.5 then
@@ -241,10 +253,10 @@ while true do
 				if xExisits then direction = xDir else direction = zDir end
 				arrow = dirToArrow(direction,facing,xExisits)
 			else
-				local ratio = math.abs(xDif)/math.abs(zDif)
-				if ratio>0.75 then
+				local ratio = math.deg(math.atan(math.abs(xDif),math.abs(zDif)))
+				if ratio>67.5 then
 					arrow = dirToArrow(xDir,facing,true)
-				elseif ratio>0.25 then
+				elseif ratio>22.5 then
 					if facing == sides.south then
 						if xDir == sides.east then xDir = sides.west else xDir = sides.east end
 						if zDir == sides.north then zDir = sides.south else zDir = sides.north end
@@ -262,7 +274,6 @@ while true do
 			end
 		end
 		local screenW,screenH = term.getViewport()
-		print(arrow)
 		local selectedArrow = arrows[arrow]
 		local arrowTab = lines(selectedArrow)
 		local arrowTabLens = {}
@@ -277,11 +288,14 @@ while true do
 			term.setCursor(xPos,yPos+i-1)
 			term.write(arrowTab[i])
 		end
-		
 	else --Reset
+		term.clear()
 		print("Arrived")
+		beep.beep({[261.63]=1})
+		os.sleep(0.2)
+		beep.beep({[349.23]=0.8})
 		selected = ""
 		path = nil
-		inst = 1
+		instNo = 2
 	end --if
 end 
