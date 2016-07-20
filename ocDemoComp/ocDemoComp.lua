@@ -5,6 +5,13 @@ local screen = component.screen
 local event = require("event")
 local keyboard = require("keyboard")
 
+local function lines(str)
+  local t = {}
+  local function helper(line) table.insert(t, line) return "" end
+  helper((str:gsub("(.-)\r?\n", helper)))
+  return t
+end
+
 local x,y = 108,72
 
 gpu.setResolution(x,y) --160x50 = 5x4
@@ -52,16 +59,16 @@ for i = 1,#titleText2 do
 	term.write(titleText2[i])
 end
 
-local infoText = [[
-The following categories are being considered: Demo, EEPROM, Game, Tool, Artwork and Wild.
-This is not final, however - categories with few entries may get merged into other ones and new categories
+local infoText = {[[
+The following categories are being considered: Demo, EEPROM, Game, Tool, Artwork and Wild.]],
+[[This is not final, however - categories with few entries may get merged into other ones and new categories
 might be created.
 We will show every demo, however voting will only be allowed in official categories.
 
 Entries are accepted until July 29th. Multiple entries from one person are allowed.
-
-For categories Demo, Game, Tool and EEPROM:
-• As standard, you will get a Tier 3 GPU, 2 megabytes of RAM, a Tier 3 Lua 5.3 CPU and the latest version of
+]],
+[[For categories Demo, Game, Tool and EEPROM:]],
+[[• As standard, you will get a Tier 3 GPU, 2 megabytes of RAM, a Tier 3 Lua 5.3 CPU and the latest version of
   OpenOS available at the time. Additional cards/peripherals may be requested - especially for sound -
   however we do not promise they will qualify outside of Wild (especially if they overpower OpenComputers’s
   built-in capabilities)!
@@ -71,12 +78,12 @@ For categories Demo, Game, Tool and EEPROM:
   even if it requires preload time to write to the tape.
 • Any additional requirements, the author(s) and a short comment will be shown on an info panel before the
   demo is displayed.
-
-For categories Demo, Game, Artwork and EEPROM:
-  • No wireless/Internet connectivity is allowed - your demos must be self-contained.
-
-For categories Demo and EEPROM:
-  • If your demo requires any user input, please let us know. If your demo requires any custom
+]],
+[[For categories Demo, Game, Artwork and EEPROM:]],
+[[  • No wireless/Internet connectivity is allowed - your demos must be self-contained.
+]],
+[[For categories Demo and EEPROM:]],
+[[  • If your demo requires any user input, please let us know. If your demo requires any custom
     OSes/preparation, please let us know.
 
 In the Demo category, your demo must fit on one unit’s worth of an OpenComputers storage medium
@@ -93,15 +100,25 @@ involve you either providing some sort of demonstration or showing it off yourse
 audio chat is necessary).
 
 In the Artwork category, your demo should be in the form of a static display on a Tier 3 GPU, coupled with
-its own Lua-based loader.
+its own Lua-based loader. (Hint - asie made a loader called ctif: https://github.com/ChenThread/ctif)
 
 For the Wild category - go wild! You can use Robots, Drones, even TIS-3D or redstone! 
+]],
+[[Note: Your demo can’t bring down the entire server in lag. Vanilla redstone might not be a good idea.
 
-Note: Your demo can’t bring down the entire server in lag. Vanilla redstone might not be a good idea.
-]]
-os.sleep(0.5)
-term.setCursor(1,#titleText+#titleText2+2)
-term.write(infoText)
+Try to do as much as you can yourself. Please state if you have used any of other people's code (including
+non standard apis), what they do and who wrote them. (you could use a sign or monitor for this)
+]]}
+os.sleep(0.1)
+local pos = #titleText+#titleText2+2
+for i=1,#infoText do
+	local col = 0xffffff
+	if i%2 ==1 then col = 0xff0000 end
+	gpu.setForeground(col,false)
+	term.setCursor(1,pos)
+	term.write(infoText[i])
+	pos = pos+#lines(infoText[i])
+end
 
 while true do
 	_, _, _, code = event.pull("key_down")
