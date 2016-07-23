@@ -78,13 +78,14 @@ function drawAll(page)
 		end
 	end
 end
-
+--[[
 local tapeDrive = {}
 local i = 1
 for address, type in pairs(component.list("tape")) do
   tapeDrive[i] = address
   i = i+1
 end
+]]--
 
 local w,h = gpu.getResolution()
 
@@ -283,7 +284,7 @@ local page = 1
 local drive = 1
 --Main Loop
 while true do
-  --Tape Drive Script
+  --[==[Tape Drive Script
 	if component.invoke(tapeDrive[drive],"isEnd") then
 		component.invoke(tapeDrive[drive],"seek",-component.invoke(tapeDrive[drive],"getSize"))
 		if drive == 1 then
@@ -293,7 +294,7 @@ while true do
 		end
 		component.invoke(tapeDrive[drive],"play")
 	end
-	
+	--]==]
 	if timer == changeTime then
 		gpu.setForeground(0x000000)
 		gpu.fill(1,tableTitleY,screenX,screenY-tableTitleY," ")
